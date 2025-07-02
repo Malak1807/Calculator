@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body{
+                font-family:monospace;
+                background-color: #c6d0da;
+            }
+            #calc{
+                width: 400px;
+                height: 650px;
+                border-style: solid;
+                margin: 10px 450px;
+                position: absolute;
+                padding: 20px;
+                border-radius: 50px;
+                border: 2px solid transparent;
+                background-color: #758898;
+                box-shadow: 0px 0px 10px black;
+
+            }
+            #displayBox{
+                width: 350px;
+                height: 150px;
+                border-radius: 40px;
+                border:2px solid transparent;
+                box-shadow: 0px 0px 10px black;
+                background-color: #a0adb9;
+                position: absolute;
+                left: 45px;
+                box-sizing: border-box; 
+                overflow: hidden;
+            }
+            #buttons button{
+                border-style: solid;
+                margin: 10px;
+                font-size: 50px;
+                width: 60px;
+                height: 70px;
+                border-radius: 50px;
+                background-color: #c6d0da;
+                box-shadow: 0px 0px 10px black;
+            }
+            #buttons button:hover{
+                font-size: 52.5px;
+                width: 63px;
+                height: 73.5px;
+                margin: 9.5px;
+                
+            }
+            #buttons{
+                background-color: #a0adb9;
+                width: 350px;
+                height: 470px;
+                border-style: solid;
+                position: absolute;
+                top: 200px;
+                left: 45px;
+                border-radius: 40px;
+                box-shadow: 0px 0px 10px black;
+                border: 2px solid transparent;
+            }
+            #result{
+                text-align: right;
+                font-size: 60px;
+                position: relative;
+                right: 10px;
+            }
+            #typed{
+                text-align: right;
+                font-size: 40px;
+                color: rgb(126, 126, 126);
+                position: relative;
+                right: 20px;
+                top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="calc">
+            <table id="displayBox">
+                <tr>
+                    <td style = "margin: 2px" id="typed"></td>
+                </tr>
+                <tr>
+                    <td style = "margin: 2px" id="result"></td>
+                </tr>
+            </table>
+            <div id="buttons">
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button id="multiplication">x</button>
+                <button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button>/</button>
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button>+</button>
+                <button>0</button>
+                <button>.</button>
+                <button id="equal">=</button>
+                <button>-</button>
+                <button style = "font-size: 40px;">(</button>
+                <button style = "font-size: 40px;">)</button>
+                <button id="clear" style = "font-size: 30px;">AC</button>
+                <button id="backspace" style = "font-size: 25px;">DEL</button>
+            </div>
+        </div>
+        <script >
+            var calculate;
+            var current;
+            var hiddenExtra = "";
+            var typedDigitCounter = 0;
+
+            //initialize result to zero
+            document.getElementById("result").innerHTML = 0;
+
+            //adding event listeners to the buttons
+            var buttons = document.querySelectorAll('button');
+            for (let i = 0; i < buttons.length; i++) {
+                if (i != 14 && i != 3 && i != 18 && i != 19) {
+                    buttons[i].addEventListener("click", () => {
+                        if(typedDigitCounter <= 14){
+                           document.getElementById("typed").innerHTML += buttons[i].innerText;
+                        }
+                        else{
+                            hiddenExtra += buttons[i].innerText;
+                        }
+                        typedDigitCounter++;
+                    }, false);
+                }
+            }
+            document.getElementById("multiplication").addEventListener("click", () => {
+                if(typedDigitCounter <= 14){
+                  document.getElementById("typed").innerHTML += '*';
+                }
+                else{
+                   hiddenExtra += '*';
+                }
+                typedDigitCounter++;
+            })
+            document.getElementById("equal").addEventListener("click", compute, false);
+            document.getElementById("clear").addEventListener("click", clear, false);
+            document.getElementById("backspace").addEventListener("click", backspace, false);
+
+            //set keys
+            document.addEventListener("keydown", function(event) {
+                var k = parseInt(event.key);
+                var key = event.key;
+                if( (k >= 0 && k <= 9)){
+                    if(typedDigitCounter <= 14){
+                       document.getElementById("typed").innerHTML += key;
+                    }
+                    else{
+                       hiddenExtra += key;
+                    }
+                    typedDigitCounter++;
+                }
+                else if (key == "." || key == "(" || key == ")" || key == "+" || key == "-" || key == "/" || key == "*"){
+                    if(typedDigitCounter <= 14){
+                       document.getElementById("typed").innerHTML += key;
+                    }
+                    else{
+                       hiddenExtra += key;
+                    }
+                    typedDigitCounter++;
+                }
+                else if(key == "=" || key == "Enter"){
+                    compute();
+                }  
+                else if(key == "Backspace"){
+                    backspace();
+                }          
+            })
+
+            //the compute function
+            function compute() {
+                calculate = document.getElementById("typed").innerText + hiddenExtra;
+                try{
+                    current = eval(calculate);
+                    document.getElementById("result").innerHTML = current.toPrecision(5); 
+                    document.getElementById("typed").innerHTML = current.toPrecision(10);
+
+                }catch(err){
+                    document.getElementById("result").innerHTML = "undefined";
+                }
+            }
+
+            //the clear function
+            function clear() {
+                document.getElementById("typed").innerHTML = "";
+                document.getElementById("result").innerHTML = "0";
+                hiddenExtra = "";
+                typedDigitCounter = 0;
+            }
+
+            //the backspace function
+            function backspace(){
+                if(hiddenExtra.length > 0){
+                    hiddenExtra = hiddenExtra.substring(0, hiddenExtra.length - 1);
+                }
+                else if(hiddenExtra.length == 0){
+                    var oldStr = document.getElementById("typed").innerText;
+                    document.getElementById("typed").innerHTML = oldStr.substring(0, oldStr.length - 1);
+                }
+            }
+        </script>
+    </body>
+</html>
